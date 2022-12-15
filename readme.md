@@ -10,6 +10,7 @@
 - [X] Send mail
 - [x] Reset password
 - [X] File upload
+- [x] Cloud storage
 - [X] REST API
 - [ ] Websocket
 - [ ] GraphQL
