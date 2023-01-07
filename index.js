@@ -15,7 +15,7 @@ const errorHandler = require('./middleware/errorHandler.middleware');
 const connectDB = require('./config/connectDB');
 const verifyAuth = require('./middleware/authenticate.middleware');
 const { HTTP_STATUS_NOT_FOUND, notFound } = require('./utility/httpResponse');
-// const { sendPlainTextMail } = require('./services/mail.service');
+const loadCombos = require('./controllers/combos.controller');
 
 /**
  * connect DB
@@ -44,26 +44,9 @@ app.use(verifyAuth)
 app.use('/product', require('./routers/product.router'));
 app.use('/cart', require('./routers/cart.router'));
 app.use('/master', require('./routers/master.router'));
+app.use('/vendor', require('./routers/vendor.router'));
+app.use('/combo', loadCombos);
 
-// public api to testing only
-app.get('/public', (req, res) => {
-    res.status(200).status({
-        data: [
-            {
-                id: 1,
-                name: 'Product1'
-            },
-            {
-                id: 2,
-                name: 'Product12'
-            },
-            {
-                id: 3,
-                name: 'Product3'
-            }
-        ]
-    })
-})
 app.all('*', (req, res) => {
     res.status(HTTP_STATUS_NOT_FOUND)
     if (req.accepts('html')) {
