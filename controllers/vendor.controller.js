@@ -55,7 +55,8 @@ const addVendor = async (req, res) => {
 
     if (req?.file) {
         console.time('vendor-image-upload-start')
-        const { url } = await storageSerice.upload(req?.file?.buffer);
+        console.log('file', req?.file);
+        const { url } = await storageSerice.upload(req?.file?.buffer, `${vendor._id}`);
         console.log("result", url);
         console.timeEnd('vendor-image-upload-start')
         if (url) { vendor.image = url; }

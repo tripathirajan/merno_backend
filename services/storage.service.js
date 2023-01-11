@@ -8,14 +8,15 @@ cloudinary.config(options);
 const fileUploader = cloudinary.uploader;
 
 
-const _streamUploader = (fileBuffer) => new Promise(function (resolve, reject) {
+const _streamUploader = (fileBuffer, opt = {}) => new Promise(function (resolve, reject) {
     if (!fileBuffer) {
         const error = new Error('Invalid file buffer.');
         reject(error);
         return;
     }
     try {
-        let stream = fileUploader.upload_stream((error, result) => {
+        const fileName = opt?.fileName;
+        let stream = fileUploader.upload_stream({ public_id: fileName }, (error, result) => {
             if (error) {
                 reject(error);
                 return;
@@ -30,8 +31,8 @@ const _streamUploader = (fileBuffer) => new Promise(function (resolve, reject) {
 })
 
 const storageSerice = {
-    upload: async function (fileBuffer) {
-        const result = await _streamUploader(fileBuffer);
+    upload: async function (fileBuffer, fileName) {
+        const result = await _streamUploader(fileBuffer, { fileName });
         return result;
     }
 }
