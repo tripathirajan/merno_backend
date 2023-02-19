@@ -5,7 +5,7 @@ const getAllVendor = async (req, res) => {
     const { page, sortBy = "createdAt", dir = 'desc', filters } = req?.query;
     const vendorList = await Vendor.find().sort({ [sortBy]: dir })
         .lean()
-        .populate('createdBy', { fullName: 1, _id: -1 })
+        .populate('createdBy', 'fullName')
         .populate('updatedBy', 'fullName');
 
     if (vendorList?.length == 0) {

@@ -4,37 +4,106 @@ const storageSerice = require("../services/storage.service");
 const getProductList = async (req, res) => {
     const { page, sortBy = "createdAt", dir = 'desc', filters } = req?.query;
 
-    const productList = await Product.find().sort({ [sortBy]: dir }).lean();
+    const productList = await Product.find({}, {
+        _id: 0,
+        id: "$_id",
+        productName: 1,
+        sku: 1,
+        upc: 1,
+        vendor: 1,
+        brand: 1,
+        productCategory: 1,
+        packageType: 1,
+        stock: 1,
+        salePrice: 1,
+        regularPrice: 1,
+        description: 1,
+        updatedBy: 1,
+        updatedAt: 1,
+        createdBy: 1,
+        createdAt: 1,
+        isActive: 1,
+        unit: 1,
+        currency: 1,
+        image: 1
+    })
+        .sort({ [sortBy]: dir })
+        .lean()
+        .populate({ path: 'createdBy', select: 'fullName -_id' })
+        .populate({ path: 'updatedBy', select: 'fullName -_id' })
+        .populate({ path: 'vendor', select: 'name _id' })
+        .populate({ path: 'brand', select: 'name -_id' })
+        .populate({ path: 'productCategory', select: 'name -_id' })
+        .populate({ path: 'packageType', select: 'name -_id' })
+        .populate({ path: 'unit', select: 'name -_id' })
+        .populate({ path: 'currency', select: 'name -_id' });
 
     if (productList?.length == 0) {
         return res.status(200).json({ items: [], page: 1, totalCount: 0 });
     }
-    // transform data
-    const items = [];
-    for (const product of productList) {
-        items.push({ id: product._id, name: product.name, description: product.description, price: product.price, image: product.image });
-    }
-    return res.status(200).json({ items, page: 1, totalCount: productList?.length });
+
+    return res.status(200).json({ items: productList, page: 1, totalCount: productList?.length });
 };
 
 const addNewProduct = async (req, res) => {
-    const { name, description, price } = req?.body;
-    if (!name || !description || !price) {
+    const { productName,
+        description,
+        sku,
+        upc,
+        vendor,
+        brand,
+        productCategory,
+        packageType,
+        stock,
+        unit,
+        currency,
+        salePrice,
+        regularPrice,
+        isActive } = req?.body;
+    const { userId } = req;
+
+    if (!productName ||
+        !description ||
+        !sku || !upc ||
+        !vendor || !brand ||
+        !packageType ||
+        !productCategory ||
+        (stock <= 0) || !unit || !currency ||
+        (salePrice <= 0) || (regularPrice <= 0)) {
         return res.status(200).json({ success: false, message: 'Parameter required' });
     }
-    const product = await Product.create({ name, description, price, image: '' });
+    const product = await Product.create({
+        productName,
+        description,
+        sku,
+        upc,
+        vendor,
+        brand,
+        productCategory,
+        packageType,
+        stock,
+        unit,
+        currency,
+        salePrice,
+        regularPrice,
+        isActive,
+        image: '',
+        createdBy: userId,
+        updatedBy: userId
+    });
+
     if (!product) {
         return res.status(400).json({ success: false, message: "product not added please try again." })
     }
     if (req?.file) {
         console.time('image-upload-start')
-        const { url } = await storageSerice.upload(req?.file?.buffer);
+        const { url } = await storageSerice.upload(req?.file?.buffer, product._id);
         console.log("result", url);
         console.timeEnd('image-upload-start')
         if (url) { product.image = url; }
         product.save();
     }
-    return res.status(200).json({ success: true, message: 'Product created' });
+    return res.status(201).json({ success: true, message: 'Product created' });
 };
 
 const getProductInfo = async (req, res) => {
