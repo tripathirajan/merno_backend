@@ -5,7 +5,7 @@ const getAllVendor = async (req, res) => {
     const { page, sortBy = "createdAt", dir = 'desc', filters } = req?.query;
     const vendorList = await Vendor.find().sort({ [sortBy]: dir })
         .lean()
-        .populate('createdBy', { fullName: 1, _id: -1 })
+        .populate('createdBy', 'fullName')
         .populate('updatedBy', 'fullName');
 
     if (vendorList?.length == 0) {
@@ -55,7 +55,8 @@ const addVendor = async (req, res) => {
 
     if (req?.file) {
         console.time('vendor-image-upload-start')
-        const { url } = await storageSerice.upload(req?.file?.buffer);
+        console.log('file', req?.file);
+        const { url } = await storageSerice.upload(req?.file?.buffer, `${vendor._id}`);
         console.log("result", url);
         console.timeEnd('vendor-image-upload-start')
         if (url) { vendor.image = url; }

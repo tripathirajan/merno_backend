@@ -156,7 +156,7 @@ const refreshToken = (req, res) => {
                 { expiresIn: ACCESS_TOKEN_EXPIREIN }
             )
             // send response
-            res.json({ username: foundUser.username, fullName: foundUser.fullName, roles: foundUser.roles, accessToken })
+            res.status(200).json({ username: foundUser.username, fullName: foundUser.fullName, roles: foundUser.roles, accessToken })
         })
     )
 };

@@ -83,10 +83,10 @@ mongoose.connection.on('error', err => {
  */
 process.on('unhandledRejection', (err) => {
     console.log('unhandledRejection:', err)
-    logEvents(`unhandledRejection: ${err.no}: ${err.code}\t${err.syscall}\t${err.hostname}`, 'processLog-unhandledRejection.log');
+    logEvents(`unhandledRejection: ${JSON.stringify(err)}`, 'processLog-unhandledRejection.log');
 });
 
 process.on('uncaughtException', (err) => {
     console.log('uncaughtException:', err)
-    logEvents(`uncaughtException: ${err.no}: ${err.code}\t${err.syscall}\t${err.hostname}`, 'processLog-uncaughtException.log');
+    logEvents(`uncaughtException: ${JSON.stringify(err)}`, 'processLog-uncaughtException.log');
 });
