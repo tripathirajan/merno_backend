@@ -28,20 +28,18 @@ const userSchema = new Schema({
         type: Boolean,
         default: true
     },
-    cart: {
-        items: [
-            {
-                productId: {
-                    type: Schema.Types.ObjectId,
-                    ref: 'Product',
-                    required: true
-                },
-                quantity: {
-                    type: Number,
-                    required: true
-                }
-            }
-        ]
+    image: {
+        type: String
+    },
+    createdBy: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
+    updatedBy: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
     }
 }, {
     timestamps: true
@@ -70,31 +68,6 @@ userSchema.methods.hasPasswordMatched = async function (password) {
         throw error;
     }
     return matched;
-}
-
-userSchema.methods.addToCart = function (product) {
-    const matchIndex = this.cart.items.findIndex(cartItem => {
-        return cartItem.productId.toString() === product._id.toString();
-    });
-    let newQuantity = 1;
-    const updatedCartItems = [...this.cart.items];
-
-    // already found the update price and quantity
-    if (matchIndex >= 0) {
-        newQuantity = this.cart.items[matchIndex].quantity + 1;
-        updatedCartItems[matchIndex].quantity = newQuantity;
-    } else {
-        updatedCartItems.push({
-            productId: product._id,
-            quantity: newQuantity
-        });
-    }
-    const updatedCart = {
-        items: updatedCartItems
-    };
-    this.cart = updatedCart;
-    return this.save();
-
 }
 
 module.exports = mongoose.model('User', userSchema)
