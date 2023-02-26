@@ -46,6 +46,7 @@ app.use('/cart', require('./routers/cart.router'));
 app.use('/master', require('./routers/master.router'));
 app.use('/vendor', require('./routers/vendor.router'));
 app.use('/combo', loadCombos);
+app.use('/user', require('./routers/user.router'));
 
 app.all('*', (req, res) => {
     res.status(HTTP_STATUS_NOT_FOUND)

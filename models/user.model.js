@@ -33,8 +33,7 @@ const userSchema = new Schema({
     },
     createdBy: {
         type: Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
+        ref: 'User'
     },
     updatedBy: {
         type: Schema.Types.ObjectId,
