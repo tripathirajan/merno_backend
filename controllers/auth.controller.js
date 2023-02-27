@@ -62,7 +62,7 @@ const login = asyncHandler(async (req, res) => {
         maxAge: Number(COOKIE_MAX_AGE) //7 * 24 * 60 * 60 * 1000 //cookie expiry: set to match rT
     })
     // Send accessToken containing username and roles
-    res.status(200).json({ username: user.username, fullName: user.fullName, roles: user.roles, accessToken, message: 'Success!' });
+    res.status(200).json({ username: user.username, fullName: user.fullName, roles: user.roles, accessToken, image: user.image, message: 'Success!' });
 })
 
 /**
@@ -156,7 +156,7 @@ const refreshToken = (req, res) => {
                 { expiresIn: ACCESS_TOKEN_EXPIREIN }
             )
             // send response
-            res.status(200).json({ username: foundUser.username, fullName: foundUser.fullName, roles: foundUser.roles, accessToken })
+            res.status(200).json({ username: foundUser.username, fullName: foundUser.fullName, roles: foundUser.roles, image: foundUser.image, accessToken })
         })
     )
 };
