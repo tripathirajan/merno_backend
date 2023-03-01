@@ -28,7 +28,7 @@ const sendMail = ({ to, subject, body, from = MAIL_SENT_FROM, isHtml = false, ca
         isHtml = HTML_REGEX.test(body);
     }
     from = from || MAIL_SENT_FROM;
-    const result = transport.sendMail({
+    transport.sendMail({
         to,
         from,
         subject,
@@ -37,8 +37,10 @@ const sendMail = ({ to, subject, body, from = MAIL_SENT_FROM, isHtml = false, ca
         if (callback && typeof callback === 'function') {
             callback(result, null);
         }
+        console.log('Mail sent result', result);
         return result;
     }).catch(err => {
+        console.log('Mail sent error:', err);
         if (callback && typeof callback === 'function') {
             callback(null, err);
         }

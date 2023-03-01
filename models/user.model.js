@@ -22,9 +22,9 @@ const userSchema = new Schema({
     resetTokenExpiration: Date,
     roles: {
         type: [String],
-        default: ["user"]
+        default: ["User"]
     },
-    active: {
+    isActive: {
         type: Boolean,
         default: true
     },
