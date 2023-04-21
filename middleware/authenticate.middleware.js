@@ -18,10 +18,12 @@ const verifyAuth = (req, res, next) => {
                 }
                 const { userInfo } = decoded;
                 const userId = userInfo?.id || '';
+                const roles = userInfo?.roles;
                 if (!userId) {
                     return res.status(HTTP_STATUS_UNAUTHORIZED).json({ message: 'Unauthorized' })
                 }
                 req.userId = userId;
+                req.roles = roles;
                 next()
             }
         )

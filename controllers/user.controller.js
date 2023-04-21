@@ -82,9 +82,18 @@ const resetPassword = async (req, res) => {
     return res.status(200).json({ message: 'Password changed.' });
 }
 const getUserList = async (req, res) => {
-    const { userId } = req;
-    const { page, sortBy = "createdAt", dir = 'desc', filters } = req?.query;
-    const userList = await userModel.find({ _id: { $ne: userId } }, {
+    const { userId, roles = [] } = req;
+    const { page, sortBy = "createdAt", dir = 'desc', filters = {} } = req?.query;
+
+    // filters
+    filters['_id'] = { $ne: userId };
+    if (!roles.includes('Admin')) {
+        filters['roles'] = {
+            $ne: "Admin"
+        }
+    }
+
+    const userList = await userModel.find(filters, {
         _id: 0,
         id: "$_id",
         fullName: 1,
@@ -141,10 +150,21 @@ const addNewUser = async (req, res) => {
     });
     return res.status(201).json({ success: true, message: 'User created' })
 }
+
+const getUserInfo = async (req, res) => {
+    const { userId } = req?.query;
+    if (!userId) return res.status(403).json({ success: false, message: 'Unauthorized' });
+    const userInfo = await userModel.findById(userId).lean().exec();
+    if (!userInfo) return res.status(403).json({ success: false, message: 'Unauthorized' });
+    const { fullName, username, isActive, roles, email, image, _id: id } = userInfo;
+    return res.status(200).json({ success: true, message: 'Success', data: { id, fullName, username, isActive, roles, email, image } });
+}
+
 module.exports = {
     loadUserProfile,
     updateProfileInfo,
     resetPassword,
     getUserList,
-    addNewUser
+    addNewUser,
+    getUserInfo
 }
