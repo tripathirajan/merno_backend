@@ -7,7 +7,6 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const { RJNLogger, LogLevel } = require('@tripathirajan/rjn-logger');
 const rjnlogger = new RJNLogger({ minLevel: LogLevel.DEBUG });
-console.log("Testing console")
 /**
  * custom imports
  */
