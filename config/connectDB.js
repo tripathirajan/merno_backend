@@ -1,8 +1,8 @@
 const mongoose = require('mongoose')
 const { db: dbOptions } = require('../app-config');
 
-const { username, passsword, db, host, port, ...rest } = dbOptions;
-const dbURI = `mongodb://${username}:${passsword}@${host}:${port}/${db}`;
+const { username, password, db, host, port, ...rest } = dbOptions;
+const dbURI = `mongodb://${username}:${password}@${host}:${port}/${db}`;
 
 const connectDB = async () => {
     try {

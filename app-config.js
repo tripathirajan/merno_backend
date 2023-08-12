@@ -11,7 +11,7 @@ module.exports = {
         port: process.env.DB_PORT,
         db: process.env.DB_NAME,
         username: process.env.DB_USERNAME,
-        passsword: process.env.DB_PASSWORD,
+        password: process.env.DB_PASSWORD,
         useNewUrlParser: true,
         useUnifiedTopology: true
     },
