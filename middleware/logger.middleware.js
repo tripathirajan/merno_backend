@@ -3,19 +3,21 @@ const { v4: uuid } = require('uuid')
 const fs = require('fs')
 const fsPromises = require('fs').promises
 const path = require('path')
+const { RJNLogger, LogLevel } = require('@tripathirajan/rjn-logger');
+
+const rjnLogger = new RJNLogger({ minLevel: LogLevel.DEBUG });
 
 const logEvents = async (message, logFileName) => {
-    const dateTime = format(new Date(), 'yyyy-MM-dd HH:mm:ss')
-    const logItem = `${dateTime}\t${uuid()}\t${message}`;
-    console.log('\x1b[32m', '[INFO]', '\x1b[0m', logItem);
+    rjnLogger.info(message, { reqId: uuid() })
 
     try {
         if (!fs.existsSync(path.join(__dirname, '..', 'logs'))) {
             await fsPromises.mkdir(path.join(__dirname, '..', 'logs'))
         }
-        await fsPromises.appendFile(path.join(__dirname, '..', 'logs', logFileName), logItem)
+        await fsPromises.appendFile(path.join(__dirname, '..', 'logs', logFileName), message)
     } catch (err) {
         console.log('\x1b[41m', '[ERROR]', '\x1b[0m', '\x1b[32m', err, '\x1b[0m')
+        rjnLogger.error(err.message, err);
     }
 }
 

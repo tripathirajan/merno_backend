@@ -5,7 +5,8 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
-
+const { RJNLogger, LogLevel } = require('@tripathirajan/rjn-logger');
+const rjnlogger = new RJNLogger({ minLevel: LogLevel.DEBUG });
 /**
  * custom imports
  */
@@ -63,17 +64,17 @@ app.all('*', (req, res) => {
  * server
  */
 const PORT = process.env.PORT || 3500;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
+app.listen(PORT, () => rjnlogger.info(`Server running on port ${PORT}`))
 
 /**
  * db events
  */
 mongoose.connection.once('open', () => {
-    console.log('Connected to MongoDB');
+    rjnlogger.info('Connected to MongoDB');
 })
 
 mongoose.connection.on('error', err => {
-    console.log(err)
+    rjnlogger.error(err?.message, err)
     if (err) {
         logEvents(`${err.no}: ${err.code}\t${err.syscall}\t${err.hostname}`, 'mongoErrLog.log')
     }

@@ -29,7 +29,7 @@ const login = asyncHandler(async (req, res) => {
     const user = await User.findOne({ username });
 
     // user account found
-    if (!user || !user.active) {
+    if (!user || !user.isActive) {
         return res.status(401).json({ message: 'Unauthorized' })
     }
     // match password

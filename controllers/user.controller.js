@@ -1,5 +1,6 @@
 const userModel = require("../models/user.model");
 const storageSerice = require("../services/storage.service");
+const { sendHTMLMail } = require("../services/mail.service");
 
 const IMAGE_ACTION_NONE = 'none';
 const IMAGE_ACTION_UPDATE = 'change';
@@ -80,8 +81,90 @@ const resetPassword = async (req, res) => {
     if (!updated) res.status(422).json({ message: 'Password not updated.' });
     return res.status(200).json({ message: 'Password changed.' });
 }
+const getUserList = async (req, res) => {
+    const { userId, roles = [] } = req;
+    const { page, sortBy = "createdAt", dir = 'desc', filters = {} } = req?.query;
+
+    // filters
+    filters['_id'] = { $ne: userId };
+    if (!roles.includes('Admin')) {
+        filters['roles'] = {
+            $ne: "Admin"
+        }
+    }
+
+    const userList = await userModel.find(filters, {
+        _id: 0,
+        id: "$_id",
+        fullName: 1,
+        username: 1,
+        email: 1,
+        roles: 1,
+        image: 1,
+        updatedBy: 1,
+        updatedAt: 1,
+        createdBy: 1,
+        createdAt: 1,
+        isActive: 1
+    }).sort({ [sortBy]: dir })
+        .lean()
+        .populate({ path: 'createdBy', select: 'fullName -_id' })
+        .populate({ path: 'updatedBy', select: 'fullName -_id' });
+    if (userList?.length == 0) {
+        return res.status(200).json({ items: [], page: 1, totalCount: 0 });
+    }
+
+    return res.status(200).json({ items: userList, page: 1, totalCount: userList?.length });
+}
+const addNewUser = async (req, res) => {
+    const { fullName, username, email, password, isActive, roles } = req?.body;
+    if (!fullName || !username || !password || !isActive || roles?.length === 0 || !email) {
+        return res.status(200).json({ success: false, message: 'Parameter required' });
+    }
+    const { userId } = req;
+    const existingUser = await userModel.findOne({ username }).lean();
+    if (existingUser?.username) return res.status(422).json({ message: 'Username already exist.', success: false });
+
+    const user = await userModel.create({
+        fullName,
+        username,
+        email,
+        password,
+        isActive,
+        roles,
+        createdBy: userId,
+        updatedBy: userId
+    });
+    if (!user) {
+        return res.status(400).json({ success: false, message: "User not created. Please try again." })
+    }
+    sendHTMLMail({
+        to: user?.email,
+        subject: "Welcome to Meno | Account Created",
+        body: `<p>Hi ${user?.fullName}</p>
+                    <p> Welcome to Merno.</p>
+                    <p>Here is your credential (Please change your password after login.)</p>
+                    <p>username: <b>${username}</b></p>
+                    <p>password: <b>${password}</b></p>
+                `
+    });
+    return res.status(201).json({ success: true, message: 'User created' })
+}
+
+const getUserInfo = async (req, res) => {
+    const { userId } = req?.query;
+    if (!userId) return res.status(403).json({ success: false, message: 'Unauthorized' });
+    const userInfo = await userModel.findById(userId).lean().exec();
+    if (!userInfo) return res.status(403).json({ success: false, message: 'Unauthorized' });
+    const { fullName, username, isActive, roles, email, image, _id: id } = userInfo;
+    return res.status(200).json({ success: true, message: 'Success', data: { id, fullName, username, isActive, roles, email, image } });
+}
+
 module.exports = {
     loadUserProfile,
     updateProfileInfo,
-    resetPassword
+    resetPassword,
+    getUserList,
+    addNewUser,
+    getUserInfo
 }
